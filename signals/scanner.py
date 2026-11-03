@@ -155,10 +155,15 @@ def scan_sniper():
         fee = taker_fee_per_share(m, ask)
         gain_taker = (1 - ask - fee) / ask
         gain_maker = (1 - maker) / maker if maker else 0
+        hrs = (NOW - end).total_seconds() / 3600 if end else 0
+        early = status not in ("proposed", "resolved")
+        if early and hrs < c["min_hours_since_end"]:
+            continue  # end date can be set before the event finishes (weather, elections)
+        confidence = "high" if not early else ("medium" if hrs >= 48 else "low")
         ev = (m.get("events") or [{}])[0]
         reasons = [f"Ended {((NOW - end).total_seconds() / 3600):.0f}h ago" if end else "Past end date",
                    {"proposed": "outcome proposed to oracle", "resolved": "oracle resolved, awaiting settlement",
-                    "none": "no oracle proposal yet"}.get(status, f"oracle status: {status}"),
+                    "posed": "awaiting oracle proposal", "none": "no oracle proposal yet"}.get(status, f"oracle status: {status}"),
                    f"${depth:,.0f} available at ask"]
         if fee:
             reasons.append(f"taker fee ~{fee * 100:.2f}c/share, maker free")
@@ -172,7 +177,7 @@ def scan_sniper():
             taker_fee_est=round(fee, 5), res_status=status, expected_settlement=r.get("expected_settlement_time"),
             est_days=round(est_days, 2), annual_yield_taker=round(gain_taker / max(est_days, 0.25) * 365, 3),
             annual_yield_maker=round(gain_maker / max(est_days, 0.25) * 365, 3),
-            volume=round(float(m.get("volumeNum") or 0)), reasons=reasons))
+            volume=round(float(m.get("volumeNum") or 0)), confidence=confidence, reasons=reasons))
     sigs.sort(key=lambda s: -max(s["annual_yield_taker"], s["annual_yield_maker"] * 0.5))
     log(f"sniper: {len(sigs)} signals")
     return sigs
@@ -238,7 +243,8 @@ if __name__ == "__main__":
     sniper, copy = scan_sniper(), scan_copy()
     seen = state["seen"]
     new_copy = [s for s in copy if s["id"] not in seen]
-    new_snp = [s for s in sniper if s["id"] not in seen and s["annual_yield_taker"] >= CFG["sniper"]["notify_min_annual_yield"]]
+    new_snp = [s for s in sniper if s["id"] not in seen and s["confidence"] != "low"
+               and s["annual_yield_taker"] >= CFG["sniper"]["notify_min_annual_yield"]]
     for s in new_copy:
         price = f"{s['avg_price'] * 100:.1f}c" if s["avg_price"] else "?"
         now = f", now {s['now_ask'] * 100:.1f}c" if s.get("now_ask") else ""
