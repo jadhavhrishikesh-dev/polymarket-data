@@ -1,0 +1,43 @@
+name: Scan signals
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  push:
+    paths: [signals/**, .github/workflows/scan.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scan
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Load previous state
+        run: |
+          mkdir -p out
+          if git fetch -q origin signals-data; then
+            git show origin/signals-data:state.json > out/state.json 2>/dev/null || true
+          fi
+      - name: Scan
+        run: |
+          if [ -s out/state.json ]; then python -u signals/scanner.py out; else python -u signals/scanner.py out --no-notify; fi
+      - name: Publish to signals-data branch
+        run: |
+          cd out
+          git init -q -b signals-data
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add signals.json state.json
+          git commit -qm "signals $(date -u +%FT%TZ)"
+          git push -f -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" signals-data
