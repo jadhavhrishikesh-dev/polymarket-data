@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>PM Signals</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">◎</span>
+      <div>
+        <h1>PM Signals</h1>
+        <p id="updated" class="muted">Loading…</p>
+      </div>
+    </div>
+    <button id="refresh" class="icon-btn" aria-label="Refresh">↻</button>
+  </header>
+
+  <div id="mode" class="mode mode-checking">Checking location…</div>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="sniper" class="tab active">Sniper <span id="n-sniper" class="count"></span></button>
+    <button role="tab" data-tab="copy" class="tab">Copy <span id="n-copy" class="count"></span></button>
+    <button role="tab" data-tab="paper" class="tab">Trades <span id="n-paper" class="count"></span></button>
+  </nav>
+
+  <main>
+    <section id="tab-sniper" class="panel active">
+      <div class="filters">
+        <label><input type="checkbox" id="hide-low" checked> Hide low confidence</label>
+        <select id="sort-sniper" aria-label="Sort">
+          <option value="yield">Best yield</option>
+          <option value="depth">Most liquidity</option>
+          <option value="price">Highest price (safest)</option>
+        </select>
+      </div>
+      <div id="list-sniper" class="list"></div>
+    </section>
+    <section id="tab-copy" class="panel">
+      <div class="filters" id="wallet-filter"></div>
+      <div id="list-copy" class="list"></div>
+    </section>
+    <section id="tab-paper" class="panel">
+      <div id="scorecard" class="scorecard"></div>
+      <div id="list-paper" class="list"></div>
+      <div class="settings">
+        <h3>Alerts</h3>
+        <p class="muted">Install the free <b>ntfy</b> app, then subscribe to your topic to get push alerts.</p>
+        <div class="row"><code id="topic"></code><button id="copy-topic" class="btn small">Copy</button></div>
+        <button id="open-ntfy" class="btn small ghost">Open in ntfy</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="sheet" class="sheet" hidden>
+    <div class="sheet-backdrop" data-close></div>
+    <div class="sheet-body" role="dialog" aria-modal="true">
+      <button class="sheet-close" data-close aria-label="Close">✕</button>
+      <div id="sheet-content"></div>
+    </div>
+  </div>
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

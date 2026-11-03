@@ -144,7 +144,8 @@ def scan_sniper():
         if bid is None or bid < c["min_bid"] or ask - bid > c["max_spread"]:
             continue
         tick = float(m.get("orderPriceMinTickSize") or 0.001)
-        maker = round(min(ask - tick, (bid or 0) + tick), 4) if bid and ask - bid > tick + 1e-9 else (bid or ask)
+        # one tick under the ask: likely to fill as a maker order (no taker fee)
+        maker = round(ask - tick, 4) if ask - tick > bid + 1e-9 else bid
         r = res.get(m["conditionId"]) or {}
         status = r.get("status") or "none"
         if status in c["skip_statuses"]:
