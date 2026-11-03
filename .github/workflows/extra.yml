@@ -3,6 +3,9 @@ name: Fetch analysis extras
 on:
   push:
     paths: [extra.py, .github/workflows/extra.yml]
+  workflow_run:
+    workflows: ["Fetch wallet data"]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -17,7 +20,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -u extra.py 0xa19cbababc312f9df185e49d7004c249ed1ade6b 300
+      - name: Extras for each wallet
+        run: |
+          grep -E '^0x' wallets.txt | while read -r w; do
+            [ -f "data/$w/trades.json" ] && python -u extra.py "$w" 300
+          done
       - name: Commit results
         run: |
           git config user.name "github-actions"
