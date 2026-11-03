@@ -62,8 +62,6 @@ if __name__ == "__main__":
         sys.exit("Usage: python fetch.py <wallet address>")
     out = os.path.join("data", WALLET)
     os.makedirs(out, exist_ok=True)
-    for old in os.listdir(out):  # clear v1 leftovers
-        os.remove(os.path.join(out, old))
     for name, (path, extra, paginated) in FEEDS.items():
         rows = fetch(path, extra, paginated)
         with open(os.path.join(out, f"{name}.json"), "w") as f:
