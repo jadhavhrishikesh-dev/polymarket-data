@@ -105,7 +105,7 @@ def scan_sniper():
         if not cursor:
             break
     log(f"sniper: {len(markets)} open markets past end date")
-    cands = []
+    cands, seen_cond = [], set()
     for m in markets:
         if not m.get("acceptingOrders") or not m.get("enableOrderBook") or m.get("negRiskOther"):
             continue
@@ -113,18 +113,23 @@ def scan_sniper():
             toks, outs = json.loads(m.get("clobTokenIds") or "[]"), json.loads(m.get("outcomes") or "[]")
         except ValueError:
             continue
-        if len(toks) != 2:
+        if len(toks) != 2 or m.get("conditionId") in seen_cond:
             continue
         ba, bb = m.get("bestAsk"), m.get("bestBid")
         if ba is not None and lo <= float(ba) <= hi:
             cands.append((m, 0, toks[0], outs[0]))
         if bb is not None and lo <= 1 - float(bb) <= hi:
             cands.append((m, 1, toks[1], outs[1]))
+        seen_cond.add(m.get("conditionId"))
     log(f"sniper: {len(cands)} candidates at {lo}-{hi}")
     bk = books([t for _, _, t, _ in cands])
     res = resolutions(list({m["conditionId"] for m, *_ in cands}))
     sigs = []
+    seen_tok = set()
     for m, idx, tok, outcome in cands:
+        if tok in seen_tok:
+            continue
+        seen_tok.add(tok)
         bids, asks = bk.get(tok, ([], []))
         if not asks:
             continue
@@ -135,6 +140,9 @@ def scan_sniper():
         if depth < c["min_depth_usd"]:
             continue
         bid = bids[0][0] if bids else None
+        # real consensus: buyers bidding close to the ask, not a stale ask over an empty book
+        if bid is None or bid < c["min_bid"] or ask - bid > c["max_spread"]:
+            continue
         tick = float(m.get("orderPriceMinTickSize") or 0.001)
         maker = round(min(ask - tick, (bid or 0) + tick), 4) if bid and ask - bid > tick + 1e-9 else (bid or ask)
         r = res.get(m["conditionId"]) or {}
