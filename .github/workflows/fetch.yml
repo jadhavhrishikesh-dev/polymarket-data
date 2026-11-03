@@ -16,10 +16,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Probe API
+        run: |
+          curl -sS -i "https://data-api.polymarket.com/positions?user=$(grep -m1 -E '^0x' wallets.txt)&limit=2" | head -c 1500 || true
       - name: Download data for each wallet
         run: |
           grep -E '^0x' wallets.txt | while read -r w; do
-            echo "== $w"; python fetch.py "$w"
+            echo "== $w"; python -u fetch.py "$w"
           done
       - name: Commit results
         run: |
