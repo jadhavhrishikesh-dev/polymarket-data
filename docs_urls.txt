@@ -1,0 +1,5 @@
+https://docs.polymarket.com/_llms/en/api-reference/predictions.txt
+https://docs.polymarket.com/api-reference/geoblock.md
+https://docs.polymarket.com/_llms/en/api-reference.txt
+https://gamma-api.polymarket.com/markets?limit=2&closed=false&order=endDate&ascending=true
+https://polymarket.com/api/geoblock
