@@ -40,5 +40,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete app-latest -y --cleanup-tag || true
-          gh release create app-latest PM-Signals.apk -t "PM Signals (latest build)" \
-            -n "Built from ${GITHUB_SHA::7}. Install on Android: download PM-Signals.apk and allow installs from your browser or file manager."
+          for i in 1 2 3 4 5; do
+            gh release create app-latest PM-Signals.apk -t "PM Signals (latest build)" \
+              -n "Built from ${GITHUB_SHA::7}. Install on Android: download PM-Signals.apk and allow installs from your browser or file manager." && exit 0
+            echo "release create failed (attempt $i), retrying"; sleep $((i * 10))
+            gh release delete app-latest -y --cleanup-tag || true
+          done
+          exit 1
