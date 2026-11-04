@@ -259,6 +259,7 @@ document.addEventListener("click", (e) => {
     document.querySelectorAll(".tab").forEach((b) => b.classList.toggle("active", b === tab));
     document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("active", p.id === `tab-${tab.dataset.tab}`));
     if (tab.dataset.tab === "paper") refreshTrades();
+    if (window.btc5m) tab.dataset.tab === "btc5m" ? window.btc5m.start() : window.btc5m.stop();
     return;
   }
   const card = e.target.closest(".card[data-kind]");
@@ -284,7 +285,11 @@ $("#refresh").onclick = () => { toast("Refreshing…"); loadSignals(); checkGeo(
 $("#topic").textContent = NTFY_TOPIC;
 $("#copy-topic").onclick = () => copyText(NTFY_TOPIC);
 $("#open-ntfy").onclick = () => openUrl(`https://ntfy.sh/${NTFY_TOPIC}`);
-document.addEventListener("visibilitychange", () => { if (!document.hidden) { loadSignals(); checkGeo(); } });
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) { loadSignals(); checkGeo(); }
+  if (window.btc5m) (!document.hidden && $(".tab.active").dataset.tab === "btc5m") ? window.btc5m.start() : window.btc5m.stop();
+});
+window.addEventListener("load", () => { if (window.btc5m && $(".tab.active").dataset.tab === "btc5m") window.btc5m.start(); });
 
 checkGeo();
 loadSignals();
