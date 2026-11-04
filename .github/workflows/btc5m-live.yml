@@ -1,0 +1,26 @@
+name: BTC5m live recording
+
+on:
+  push:
+    paths: [btc5m/live.txt, .github/workflows/btc5m-live.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency: {group: btc5m-live, cancel-in-progress: false}
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - run: python btc5m/live.py $(head -1 btc5m/live.txt)
+      - run: sleep 420 && python btc5m/pull.py $(( $(head -1 btc5m/live.txt) / 60 + 1 )) 15
+      - run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add data/_btc5m
+          git diff --cached --quiet || git commit -m "BTC5m live recording"
+          for i in 1 2 3; do git pull --rebase origin main && git push && break; sleep 5; done
