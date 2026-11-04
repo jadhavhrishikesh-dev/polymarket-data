@@ -9,7 +9,7 @@ import json, math, time, urllib.request, collections
 
 EDGE = 0.04            # required edge per share after fee
 MAX_SHARES = 20        # per entry
-MIN_TAU, MAX_TAU = 30, 285   # seconds into the window when entries are allowed
+MIN_TAU, MAX_TAU = 240, 285   # live-book test (36 windows): entries before 240s lost ~7% after fees
 PMAX = 0.95            # never pay more than this
 BASIS_SD = 4.15        # $ noise between Binance TWAP and Chainlink TWAP (measured on 577 windows)
 SIG_LOOKBACK = 900     # seconds of 1s returns for volatility

@@ -9,8 +9,8 @@
 (() => {
   const BIN = ["https://api.binance.com", "https://data-api.binance.vision"];
   const BASIS_SD = 4.15, FEE_RATE = 0.07, SIG_LOOK = 900;
-  const CFG_KEY = "btc5m_cfg_v1", SHADOW_KEY = "btc5m_shadow_v1";
-  const cfg = Object.assign({ edge: 0.05, minTau: 30, maxTau: 280, hold: 3, maxPrice: 0.95, vibrate: true },
+  const CFG_KEY = "btc5m_cfg_v2", SHADOW_KEY = "btc5m_shadow_v1";
+  const cfg = Object.assign({ edge: 0.05, minTau: 240, maxTau: 280, hold: 3, maxPrice: 0.95, vibrate: true },
     (() => { try { return JSON.parse(localStorage.getItem(CFG_KEY) || "{}"); } catch { return {}; } })());
   const saveCfg = () => { try { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); } catch {} };
 
@@ -152,7 +152,7 @@
     if (!view) { box.innerHTML = `<div class="empty">Starting…</div>`; return; }
     if (view.err) { box.innerHTML = `<div class="empty">${view.err}<br>Retrying every second.</div>`; return; }
     const { start, tau, x, f, sides, bk, sig } = view, left = 300 - tau;
-    const phase = tau < cfg.minTau ? "Too early — strike just set" : tau > cfg.maxTau ? "Too late to act by hand" : tau > 240 ? "Final minute: averaging has started" : "Open";
+    const phase = tau < cfg.minTau ? (cfg.minTau >= 240 ? "Waiting for the final minute (earlier calls lost money in testing)" : "Too early — strike just set") : tau > cfg.maxTau ? "Too late to act by hand" : tau > 240 ? "Final minute: averaging has started" : "Open";
     const sig2 = view.signal;
     const verdict = !f ? `<div class="big-action neutral"><div class="what">Warming up</div><div class="sub">Need ~2 min of BTC prices and the 60s before this window opened.</div></div>`
       : sig2 ? `<div class="big-action ${sig2.side === "DOWN" ? "sell" : ""}"><div class="what">BUY ${sig2.side} · pay up to ${Math.round(sig2.lim * 100)}¢</div>
