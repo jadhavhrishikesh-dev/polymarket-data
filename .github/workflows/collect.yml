@@ -1,0 +1,31 @@
+name: Collect wallet history
+
+on:
+  push:
+    paths: [wallets.txt, collect.py, .github/workflows/collect.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download each wallet
+        run: |
+          grep -E '^0x' wallets.txt | while read -r w; do
+            echo "== $w"; python -u collect.py "$w"
+          done
+      - name: Commit results
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add data
+          git diff --cached --quiet || git commit -m "Update wallet history"
+          git pull --rebase origin "${GITHUB_REF_NAME}" && git push
