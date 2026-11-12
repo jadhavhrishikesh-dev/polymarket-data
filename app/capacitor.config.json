@@ -1,9 +1,0 @@
-{
-  "appId": "dev.jadhavhrishikesh.pmsignals",
-  "appName": "PM Signals",
-  "webDir": "www",
-  "plugins": {
-    "CapacitorHttp": { "enabled": true }
-  },
-  "android": { "allowMixedContent": false }
-}

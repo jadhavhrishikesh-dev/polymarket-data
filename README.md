@@ -1,2 +1,0 @@
-# polymarket-data
-Polymarket

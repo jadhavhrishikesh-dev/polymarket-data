@@ -1,6 +1,0 @@
-https://docs.polymarket.com/trading/fees.md
-https://docs.polymarket.com/concepts/resolution.md
-https://docs.polymarket.com/market-data/realtime-data.md
-https://docs.polymarket.com/migrate/rtds-to-polybolt.md
-https://docs.polymarket.com/getting-started/api.md
-https://docs.polymarket.com/llms-full.txt

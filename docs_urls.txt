@@ -1,8 +1,0 @@
-https://docs.polymarket.com/api-reference/markets/list-markets-keyset-pagination.md
-https://docs.polymarket.com/api-reference/markets/list-markets.md
-https://docs.polymarket.com/api-reference/market-data/get-order-book.md
-https://docs.polymarket.com/api-reference/markets/get-resolution-state.md
-https://docs.polymarket.com/api-reference/market-data/get-order-books-request-body.md
-https://gamma-api.polymarket.com/markets/keyset?limit=3&closed=false&end_date_max=2026-11-03T15:13:44Z&order=endDate&ascending=false
-https://clob.polymarket.com/book?token_id=63389373278059265804191609046269264227006803914797582886505817172562918751326
-https://data-api.polymarket.com/v2/resolutions?condition=0x03957fd52ec3c1bc1985a566fa8fb7d1e5ee717d3ca5f83f0905aa24fbc33d96
